@@ -39,11 +39,10 @@ class Trajectory():
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):
         if(t<pi):
-            q = (t*np.ones((30,1)).reshape((-1,1)))
-            print(q)
+            q = (2*t*np.ones((30,1)).reshape((-1,1)))
         else:
             q = self.q
-        qdot = np.radians(np.ones((30,1)).reshape((-1,1)))
+        qdot = 2*np.radians(np.ones((30,1)).reshape((-1,1)))
         
         
 
