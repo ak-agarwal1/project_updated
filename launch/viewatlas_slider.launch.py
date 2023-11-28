@@ -33,7 +33,7 @@ def generate_launch_description():
     # LOCATE FILES
     
     # Define the package.
-    package = 'project'
+    package = 'project_updated'
 
     # Locate the RVIZ configuration file.
     rvizcfg = os.path.join(pkgdir(package), 'rviz/viewatlas.rviz')
