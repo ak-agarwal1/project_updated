@@ -80,6 +80,13 @@ def generate_launch_description():
         package    = 'project_updated',
         executable = 'project_main',
         output     = 'screen')
+    
+    # Configure a node for the pirouette demo.
+    node_pirouette = Node(
+        name       = 'pirouette',
+        package    = 'project_updated',
+        executable = 'pirouette',
+        output     = 'screen')
 
 
     ######################################################################
@@ -89,4 +96,5 @@ def generate_launch_description():
         node_robot_state_publisher,
         node_rviz,
         node_trajectory,
+        node_pirouette
     ])

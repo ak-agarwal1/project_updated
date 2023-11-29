@@ -12,8 +12,7 @@ from project_updated.CustomUtils        import *
 
 # Grab the general fkin from HW5 P5.
 from project_updated.KinematicChain     import KinematicChain
-#from std_msgs.msg import Float64
-
+from project_updated.pirouette          import *
 
 #
 #   Trajectory Class
@@ -37,12 +36,44 @@ class Trajectory():
         #Update from each eval, start from q0
         self.q  = self.q0
 
-        #evaluate inital condition for left hand chain
-        (self.pd, self.Rd, self.Jv,self.Jw ) = self.uppertorso_lefthand_chain.fkin(self.q[16:23].reshape((-1,1)))
-        self.p_in = self.pd
-        self.R_in = self.Rd
 
-        self.pfinal = self.p_in + np.array([0.4,-0.4,0.2]).reshape((-1,1))
+        ################### Initial Positions and Rotations for tips of all 6 chains ################
+
+        #evaluate inital condition for left foot chain
+        (self.pd_leftfoot, self.Rd_leftfoot, _,_) = self.pelvis_leftfoot_chain.fkin(self.q[0:6].reshape((-1,1)))
+        self.p_initial_leftfoot = self.pd_leftfoot
+        self.R_initial_leftfoot = self.Rd_leftfoot
+
+        #evaluate inital condition for right foot chain
+        (self.pd_rightfoot, self.Rd_rightfoot, _,_) = self.pelvis_rightfoot_chain.fkin(self.q[6:12].reshape((-1,1)))
+        self.p_initial_rightfoot = self.pd_rightfoot
+        self.R_initial_rightfoot = self.Rd_rightfoot
+
+        #evaluate inital condition for upper torso chain
+        (self.pd_uppertorso, self.Rd_uppertorso, _,_) = self.pelvis_uppertorso_chain.fkin(self.q[12:15].reshape((-1,1)))
+        self.p_initial_uppertorso = self.pd_uppertorso
+        self.R_initial_uppertorso = self.Rd_uppertorso
+
+        #evaluate inital condition for head chain
+        (self.pd_head, self.Rd_head, _,_) = self.uppertorso_head_chain.fkin(self.q[15:16].reshape((-1,1)))
+        self.p_initial_head = self.pd_head
+        self.R_initial_head = self.Rd_head
+
+        #evaluate inital condition for left hand chain
+        (self.pd_lefthand, self.Rd_lefthand, _,_) = self.uppertorso_lefthand_chain.fkin(self.q[16:23].reshape((-1,1)))
+        self.p_initial_lefthand = self.pd_lefthand
+        self.R_initial_lefthand = self.Rd_lefthand
+
+        #evaluate inital condition for right hand chain
+        (self.pd_righthand, self.Rd_righthand, _,_) = self.uppertorso_righthand_chain.fkin(self.q[23:30].reshape((-1,1)))
+        self.p_initial_righthand = self.pd_righthand
+        self.R_initial_righthand = self.Rd_righthand
+
+        ##############################################################################################
+
+
+
+
 
 
     # Declare the joint names.
@@ -74,35 +105,44 @@ class Trajectory():
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):
         
-        if(t<2):
-            (s0, s0dot) = goto(t, 2.0, 0.0, 1.0)
 
-            pd = self.p_in + (self.pfinal - self.p_in)*s0
-            vd = self.pfinal * s0dot
+        if(t<3):
+            (s0, s0dot) = goto(t, 3.0, 0.0, 1.0)
 
-            Rd = Rotz(-pi/2 * s0)
-            wd = ez() * (-pi/2 * s0dot)
+            movementlh = np.array([0.2,-0.55,-0.55]).reshape(-1,1)
+            movementrh = np.array([0.2,0.55,-0.55]).reshape(-1,1)
+
+            pd_righthand = self.p_initial_righthand + (movementrh)*s0
+            vd_righthand = movementrh * s0dot
+
+            Rd_righthand = Rotx(pi/2 * s0)
+            wd_righthand = ex() * (pi/2 * s0dot)
+
+            pd_lefthand = self.p_initial_lefthand + (movementlh)*s0
+            vd_lefthand = movementlh * s0dot
+
+            Rd_lefthand = Rotx(-pi/2 * s0)
+            wd_lefthand = ex() * (-pi/2 * s0dot)
         else:
             return(None)
 
 
-
-
         qlast = self.q
-        (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = get_indv_chain_q_from_full_q(qlast)
+        (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = decompose_into_indv_chains(qlast)
 
         
-        q_lh,qdot_lh = get_qdot_from_qlast(q_uppertorso_lefthand, self.uppertorso_lefthand_chain,self.pd,self.Rd, vd,wd,dt)
+        q_rf,qdot_rf = get_qdot_and_q_from_qlast(q_uppertorso_righthand, self.uppertorso_righthand_chain,self.pd_righthand,self.Rd_righthand, vd_righthand,wd_righthand,dt)
+        q_lf,qdot_lf = get_qdot_and_q_from_qlast(q_uppertorso_lefthand, self.uppertorso_lefthand_chain,self.pd_lefthand,self.Rd_lefthand, vd_lefthand,wd_lefthand,dt)
 
-        q = np.append(np.zeros(16),q_lh)
-        q = np.append(q,np.zeros(7))
 
-        qdot = np.append(np.zeros(16),qdot_lh)
-        qdot = np.append(q,np.zeros(7))
+        q = combine_indv_chain_to_q(q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_lf,q_rf)
+        qdot = combine_indv_chain_to_q(q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,qdot_lf,qdot_rf)
 
         self.q = q
-        self.pd = pd
-        self.Rd = Rd
+        self.pd_righthand = pd_righthand
+        self.Rd_righthand = Rd_righthand
+        self.pd_lefthand = pd_lefthand
+        self.Rd_lefthand = Rd_lefthand
 
 
 
@@ -127,6 +167,7 @@ def main(args=None):
 
     # Shutdown the node and ROS.
     generator.shutdown()
+
     rclpy.shutdown()
 
 if __name__ == "__main__":
