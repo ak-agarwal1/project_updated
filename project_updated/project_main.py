@@ -8,6 +8,7 @@ from math import pi, sin, cos, acos, atan2, sqrt, fmod, exp
 from project_updated.GeneratorNode      import *
 from project_updated.TransformHelpers   import *
 from project_updated.TrajectoryUtils    import *
+from project_updated.CustomUtils        import *
 
 # Grab the general fkin from HW5 P5.
 from project_updated.KinematicChain     import KinematicChain
@@ -26,12 +27,23 @@ class Trajectory():
         self.pelvis_leftfoot_chain = KinematicChain(node,'pelvis','l_foot',joint_names[0:6])
         self.pelvis_rightfoot_chain = KinematicChain(node,'pelvis','r_foot',joint_names[6:12])
         self.pelvis_uppertorso_chain = KinematicChain(node,'pelvis','utorso',joint_names[12:15])
-        self.uppertorso_head = KinematicChain(node,'utorso','head',joint_names[15:16])
-        self.uppertorso_lefthand = KinematicChain(node,'utorso','l_hand',joint_names[16:23])
-        self.uppertorso_righthand = KinematicChain(node,'utorso','r_hand',joint_names[23:30])
+        self.uppertorso_head_chain = KinematicChain(node,'utorso','head',joint_names[15:16])
+        self.uppertorso_lefthand_chain = KinematicChain(node,'utorso','l_hand',joint_names[16:23])
+        self.uppertorso_righthand_chain = KinematicChain(node,'utorso','r_hand',joint_names[23:30])
         
-        self.q0 = np.radians(pi*np.zeros((30,1)).reshape((-1,1)))
-    
+        #Initial Condition for all joints
+        self.q0 = np.radians(np.zeros((30,1)).reshape((-1,1)))
+
+        #Update from each eval, start from q0
+        self.q  = self.q0
+
+        #evaluate inital condition for left hand chain
+        (self.pd, self.Rd, self.Jv,self.Jw ) = self.uppertorso_lefthand_chain.fkin(self.q[16:23].reshape((-1,1)))
+        self.p_in = self.pd
+        self.R_in = self.Rd
+
+        self.pfinal = self.p_in + np.array([0.4,-0.4,0.2]).reshape((-1,1))
+
 
     # Declare the joint names.
     def jointnames(self):
@@ -61,13 +73,39 @@ class Trajectory():
 
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):
-        if(t<pi):
-            q = (2*t*np.ones((30,1)).reshape((-1,1)))
+        
+        if(t<2):
+            (s0, s0dot) = goto(t, 2.0, 0.0, 1.0)
+
+            pd = self.p_in + (self.pfinal - self.p_in)*s0
+            vd = self.pfinal * s0dot
+
+            Rd = Rotz(-pi/2 * s0)
+            wd = ez() * (-pi/2 * s0dot)
         else:
-            q = self.q0
-        qdot = 2*np.radians(np.ones((30,1)).reshape((-1,1)))
+            return(None)
+
+
+
+
+        qlast = self.q
+        (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = get_indv_chain_q_from_full_q(qlast)
+
         
-        
+        q_lh,qdot_lh = get_qdot_from_qlast(q_uppertorso_lefthand, self.uppertorso_lefthand_chain,self.pd,self.Rd, vd,wd,dt)
+
+        q = np.append(np.zeros(16),q_lh)
+        q = np.append(q,np.zeros(7))
+
+        qdot = np.append(np.zeros(16),qdot_lh)
+        qdot = np.append(q,np.zeros(7))
+
+        self.q = q
+        self.pd = pd
+        self.Rd = Rd
+
+
+
 
         return (q.flatten().tolist(), qdot.flatten().tolist())
 
