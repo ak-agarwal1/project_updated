@@ -12,7 +12,9 @@ from project_updated.CustomUtils        import *
 
 # Grab the general fkin from HW5 P5.
 from project_updated.KinematicChain     import KinematicChain
-from project_updated.pirouette          import *
+
+
+#from project_updated.pirouette          import *
 
 #
 #   Trajectory Class
@@ -70,10 +72,7 @@ class Trajectory():
         self.R_initial_righthand = self.Rd_righthand
 
         ##############################################################################################
-
-
-
-
+        
 
 
     # Declare the joint names.
@@ -109,20 +108,20 @@ class Trajectory():
         if(t<3):
             (s0, s0dot) = goto(t, 3.0, 0.0, 1.0)
 
-            movementlh = np.array([0.2,-0.55,-0.55]).reshape(-1,1)
-            movementrh = np.array([0.2,0.55,-0.55]).reshape(-1,1)
+            movementlh = np.array([0.4,0,0.1]).reshape(-1,1)
+            movementrh = np.array([0.4,0,0.1]).reshape(-1,1)
 
-            pd_righthand = self.p_initial_righthand + (movementrh)*s0
-            vd_righthand = movementrh * s0dot
+            pd_rightfoot = self.p_initial_rightfoot + (movementrh)*s0
+            vd_rightfoot = movementrh * s0dot
 
-            Rd_righthand = Rotx(pi/2 * s0)
-            wd_righthand = ex() * (pi/2 * s0dot)
+            Rd_rightfoot = Roty(-pi/2 * s0)
+            wd_rightfoot = ey() * (-pi/2 * s0dot)
 
-            pd_lefthand = self.p_initial_lefthand + (movementlh)*s0
-            vd_lefthand = movementlh * s0dot
+            pd_leftfoot = self.p_initial_leftfoot + (movementlh)*s0
+            vd_leftfoot = movementlh * s0dot
 
-            Rd_lefthand = Rotx(-pi/2 * s0)
-            wd_lefthand = ex() * (-pi/2 * s0dot)
+            Rd_leftfoot = Roty(-pi/2 * s0)
+            wd_leftfoot = ey() * (-pi/2 * s0dot)
         else:
             return(None)
 
@@ -131,23 +130,33 @@ class Trajectory():
         (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = decompose_into_indv_chains(qlast)
 
         
-        q_rf,qdot_rf = get_qdot_and_q_from_qlast(q_uppertorso_righthand, self.uppertorso_righthand_chain,self.pd_righthand,self.Rd_righthand, vd_righthand,wd_righthand,dt)
-        q_lf,qdot_lf = get_qdot_and_q_from_qlast(q_uppertorso_lefthand, self.uppertorso_lefthand_chain,self.pd_lefthand,self.Rd_lefthand, vd_lefthand,wd_lefthand,dt)
+        q_rf,qdot_rf = get_qdot_and_q_from_qlast(q_pelvis_rightfoot, self.pelvis_rightfoot_chain,self.pd_rightfoot,self.Rd_rightfoot, vd_rightfoot,wd_rightfoot,dt)
+        q_lf,qdot_lf = get_qdot_and_q_from_qlast(q_pelvis_leftfoot, self.pelvis_leftfoot_chain,self.pd_leftfoot,self.Rd_leftfoot, vd_leftfoot,wd_leftfoot,dt)
 
 
-        q = combine_indv_chain_to_q(q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_lf,q_rf)
-        qdot = combine_indv_chain_to_q(q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,qdot_lf,qdot_rf)
+        q = combine_indv_chain_to_q(q_lf,q_rf,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand)
+        qdot = combine_indv_chain_to_q(qdot_lf,qdot_rf,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand)
 
         self.q = q
-        self.pd_righthand = pd_righthand
-        self.Rd_righthand = Rd_righthand
-        self.pd_lefthand = pd_lefthand
-        self.Rd_lefthand = Rd_lefthand
-
-
+        self.pd_rightfoot = pd_rightfoot
+        self.Rd_rightfoot = Rd_rightfoot
+        self.pd_leftfoot = pd_leftfoot
+        self.Rd_leftfoot = Rd_leftfoot
 
 
         return (q.flatten().tolist(), qdot.flatten().tolist())
+    
+
+
+    
+    def pelvis_movement(self, t, dt):
+
+        # Compute position/orientation of the pelvis (w.r.t. world).
+        ppelvis = pxyz(0.0, 0.5, 1.5 + 0.5 * np.sin(t/2))
+        Rpelvis = Rotz(np.sin(t))
+        Tpelvis = T_from_Rp(Rpelvis, ppelvis)
+
+        return Tpelvis
 
 
 #
@@ -160,15 +169,16 @@ def main(args=None):
     # Initialize the generator node for 100Hz udpates, using the above
     # Trajectory class.
     generator = GeneratorNode('generator', 100, Trajectory)
+    #node = DemoNode('pirouette',100)
 
     # Spin, meaning keep running (taking care of the timer callbacks
     # and message passing), until interrupted or the trajectory ends.
+    #rclpy.spin(node)
     generator.spin()
+    
 
     # Shutdown the node and ROS.
     generator.shutdown()
-
-    rclpy.shutdown()
 
 if __name__ == "__main__":
     main()

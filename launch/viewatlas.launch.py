@@ -96,5 +96,4 @@ def generate_launch_description():
         node_robot_state_publisher,
         node_rviz,
         node_trajectory,
-        node_pirouette
     ])

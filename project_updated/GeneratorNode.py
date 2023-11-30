@@ -30,6 +30,12 @@ from asyncio            import Future
 from rclpy.node         import Node
 from sensor_msgs.msg    import JointState
 
+from rclpy.node                 import Node
+from tf2_ros                    import TransformBroadcaster
+from geometry_msgs.msg          import TransformStamped
+
+from demos.TransformHelpers     import *
+
 
 #
 #   Trajectory Generator Node Class
@@ -51,6 +57,9 @@ class GeneratorNode(Node):
         # Set up a trajectory.
         self.trajectory = Trajectory(self)
         self.jointnames = self.trajectory.jointnames()
+
+        # Initialize the transform broadcaster
+        self.broadcaster = TransformBroadcaster(self)
 
         # Add a publisher to send the joint commands.
         self.pub = self.create_publisher(JointState, '/joint_states', 10)
@@ -96,6 +105,8 @@ class GeneratorNode(Node):
             self.get_logger().info("Stopping: Interrupted")
 
 
+
+
     # Update - send a new joint command every time step.
     def update(self):
         # To avoid any time jitter enforce a constant time step and
@@ -111,6 +122,18 @@ class GeneratorNode(Node):
             self.future.set_result("Trajectory has ended")
             return
         (q, qdot) = desired
+
+
+        Tpelvis = self.trajectory.pelvis_movement(self.t, self.dt)
+        
+        # Build up and send the Pelvis w.r.t. World Transform!
+        trans = TransformStamped()
+        trans.header.stamp    = now.to_msg()
+        trans.header.frame_id = 'world'
+        trans.child_frame_id  = 'pelvis'
+        trans.transform       = Transform_from_T(Tpelvis)
+        self.broadcaster.sendTransform(trans)
+
 
         # Check the results.
         if not (isinstance(q, list) and isinstance(qdot, list)):
