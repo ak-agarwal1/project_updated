@@ -39,7 +39,7 @@ def generate_launch_description():
     rvizcfg = os.path.join(pkgdir(package), 'rviz/viewatlas.rviz')
 
     # Locate the URDF file.
-    urdf = os.path.join(pkgdir(package), 'urdf/atlas_v5.urdf')
+    urdf = os.path.join(pkgdir(package), 'urdf/atlas_crutches.urdf')
 
     # Load the robot's URDF file (XML).
     with open(urdf, 'r') as file:
