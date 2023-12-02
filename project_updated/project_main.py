@@ -5,13 +5,14 @@ import numpy as np
 from math import pi, sin, cos, acos, atan2, sqrt, fmod, exp
 
 # Grab the utilities
-from project_updated.GeneratorNode      import *
-from project_updated.TransformHelpers   import *
-from project_updated.TrajectoryUtils    import *
-from project_updated.CustomUtils        import *
+from project_updated.GeneratorNode          import *
+from project_updated.TransformHelpers       import *
+from project_updated.TrajectoryUtils        import *
+from project_updated.CustomUtils            import *
+from project_updated.GeneratedTrajectories  import *
 
 # Grab the general fkin from HW5 P5.
-from project_updated.KinematicChain     import KinematicChain
+from project_updated.KinematicChain         import KinematicChain
 
 
 #from project_updated.pirouette          import *
@@ -106,22 +107,13 @@ class Trajectory():
         
 
         if(t<3):
-            (s0, s0dot) = goto(t, 3.0, 0.0, 1.0)
-
-            movementlh = np.array([0.4,0,0.1]).reshape(-1,1)
-            movementrh = np.array([0.4,0,0.1]).reshape(-1,1)
-
-            pd_rightfoot = self.p_initial_rightfoot + (movementrh)*s0
-            vd_rightfoot = movementrh * s0dot
-
-            Rd_rightfoot = Roty(-pi/2 * s0)
-            wd_rightfoot = ey() * (-pi/2 * s0dot)
-
-            pd_leftfoot = self.p_initial_leftfoot + (movementlh)*s0
-            vd_leftfoot = movementlh * s0dot
-
-            Rd_leftfoot = Roty(-pi/2 * s0)
-            wd_leftfoot = ey() * (-pi/2 * s0dot)
+            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand,
+             pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = get_hand_to_initial_pos(t,3,self.p_initial_righthand,self.p_initial_lefthand)
+            
+            (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot) = (self.p_initial_leftfoot,np.zeros((3,1)),self.R_initial_leftfoot,np.zeros((3,1)))
+            (pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = (self.p_initial_rightfoot,np.zeros((3,1)),self.R_initial_rightfoot,np.zeros((3,1)))
+            (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = (self.p_initial_uppertorso,np.zeros((3,1)),self.R_initial_uppertorso,np.zeros((3,1)))
+            (pd_head,vd_head,Rd_head,wd_head) = (self.p_initial_head,np.zeros((3,1)),self.R_initial_head,np.zeros((3,1)))
         else:
             return(None)
 
@@ -129,19 +121,26 @@ class Trajectory():
         qlast = self.q
         (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = decompose_into_indv_chains(qlast)
 
+        q_leftfoot,qdot_leftfoot = get_qdot_and_q_from_qlast(q_pelvis_leftfoot, self.pelvis_leftfoot_chain,self.pd_leftfoot,self.Rd_leftfoot, vd_leftfoot,wd_leftfoot,dt)
+        q_rightfoot,qdot_rightfoot = get_qdot_and_q_from_qlast(q_pelvis_rightfoot, self.pelvis_rightfoot_chain,self.pd_rightfoot,self.Rd_rightfoot, vd_rightfoot,wd_rightfoot,dt)
+        q_uppertorso,qdot_uppertorso = get_qdot_and_q_from_qlast(q_pelvis_uppertorso, self.pelvis_uppertorso_chain,self.pd_uppertorso,self.Rd_uppertorso, vd_uppertorso,wd_uppertorso,dt)
+        q_head,qdot_head = get_qdot_and_q_from_qlast(q_uppertorso_head, self.uppertorso_head_chain,self.pd_head,self.Rd_head, vd_head,wd_head,dt)
+        q_lefthand,qdot_lefthand = get_qdot_and_q_from_qlast(q_uppertorso_lefthand, self.uppertorso_lefthand_chain,self.pd_lefthand,self.Rd_lefthand,vd_lefthand,wd_lefthand,dt)
+        q_righthand,qdot_righthand = get_qdot_and_q_from_qlast(q_uppertorso_righthand, self.uppertorso_righthand_chain,self.pd_righthand,self.Rd_righthand, vd_righthand,wd_righthand,dt)
         
-        q_rf,qdot_rf = get_qdot_and_q_from_qlast(q_pelvis_rightfoot, self.pelvis_rightfoot_chain,self.pd_rightfoot,self.Rd_rightfoot, vd_rightfoot,wd_rightfoot,dt)
-        q_lf,qdot_lf = get_qdot_and_q_from_qlast(q_pelvis_leftfoot, self.pelvis_leftfoot_chain,self.pd_leftfoot,self.Rd_leftfoot, vd_leftfoot,wd_leftfoot,dt)
 
-
-        q = combine_indv_chain_to_q(q_lf,q_rf,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand)
-        qdot = combine_indv_chain_to_q(qdot_lf,qdot_rf,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand)
+        q = combine_indv_chain_to_q(q_leftfoot,q_rightfoot,q_uppertorso,q_head,q_lefthand,q_righthand)
+        qdot = combine_indv_chain_to_q(qdot_leftfoot,qdot_rightfoot,qdot_uppertorso,qdot_head,qdot_lefthand,qdot_righthand)
 
         self.q = q
-        self.pd_rightfoot = pd_rightfoot
-        self.Rd_rightfoot = Rd_rightfoot
-        self.pd_leftfoot = pd_leftfoot
-        self.Rd_leftfoot = Rd_leftfoot
+
+        (self.pd_leftfoot,self.Rd_leftfoot) = (pd_leftfoot,Rd_leftfoot)
+        (self.pd_rightfoot,self.Rd_rightfoot) = (pd_rightfoot,Rd_rightfoot)
+        (self.pd_uppertorso,self.Rd_uppertorso) = (pd_uppertorso,Rd_uppertorso)
+        (self.pd_head,self.Rd_head) = (pd_head,Rd_head)
+        (self.pd_lefthand,self.Rd_lefthand) = (pd_lefthand,Rd_lefthand)
+        (self.pd_righthand,self.Rd_righthand) = (pd_righthand,Rd_righthand)
+
 
 
         return (q.flatten().tolist(), qdot.flatten().tolist())
@@ -152,8 +151,8 @@ class Trajectory():
     def pelvis_movement(self, t, dt):
 
         # Compute position/orientation of the pelvis (w.r.t. world).
-        ppelvis = pxyz(0.0, 0.5, 1.5 + 0.5 * np.sin(t/2))
-        Rpelvis = Rotz(np.sin(t))
+        ppelvis = pxyz(t/4, 0, 1)
+        Rpelvis = Reye()
         Tpelvis = T_from_Rp(Rpelvis, ppelvis)
 
         return Tpelvis
