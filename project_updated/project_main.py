@@ -118,6 +118,11 @@ class Trajectory():
             return(None)
 
 
+        ##############################################################################################
+        #### NO NEED TO EDIT BEYOND THIS FOR evaluate() IF pd,Rd,vd,wd IS DEFINED FOR ALL 6 CHAINS ###
+        #### SET UNUSED CHAIN pd AND Rd TO LAST VALUES STORED AND vd AND wd TO ZEROS               ###
+        ##############################################################################################
+
         qlast = self.q
         (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = decompose_into_indv_chains(qlast)
 
