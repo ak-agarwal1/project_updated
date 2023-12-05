@@ -15,6 +15,21 @@ def get_qdot_and_q_from_qlast(qlast,Chain,pd,Rd,vd,wd,dt):
     return (q,qdot)
 
 
+def get_qdot_and_q_from_qlast_with_secondary(qlast,Chain,pd,Rd,vd,wd,dt,qdot_sec):
+
+    (p, R, Jv, Jw) = Chain.fkin(qlast)
+
+    J = np.vstack((Jv,Jw))
+
+    error = np.vstack((ep(pd,p),eR(Rd,R)))
+    v = np.vstack((vd,wd))
+    
+    qdot = np.linalg.pinv(J) @ (v + 20*(error)) + ((np.eye(np.size(qlast))) - np.linalg.pinv(J) @ J) @ qdot_sec
+    q = qlast + dt*qdot
+
+    return (q,qdot)
+
+
 
 def decompose_into_indv_chains(q):
 

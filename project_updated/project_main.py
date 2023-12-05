@@ -105,15 +105,61 @@ class Trajectory():
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):
         
-
-        if(t<3):
+        print(t)
+        if(t<=3):
             (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand,
-             pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = get_hand_to_initial_pos(t,3,self.p_initial_righthand,self.p_initial_lefthand)
+             pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = get_hand_to_initial_pos(t,3,self.p_initial_righthand,self.p_initial_lefthand,self.R_initial_righthand,self.R_initial_lefthand)
             
             (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot) = (self.p_initial_leftfoot,np.zeros((3,1)),self.R_initial_leftfoot,np.zeros((3,1)))
             (pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = (self.p_initial_rightfoot,np.zeros((3,1)),self.R_initial_rightfoot,np.zeros((3,1)))
             (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = (self.p_initial_uppertorso,np.zeros((3,1)),self.R_initial_uppertorso,np.zeros((3,1)))
             (pd_head,vd_head,Rd_head,wd_head) = (self.p_initial_head,np.zeros((3,1)),self.R_initial_head,np.zeros((3,1)))
+
+            if(t>=2.99):
+                (self.p_initial_lefthand,self.R_initial_lefthand) = (pd_lefthand,Rd_lefthand)
+                (self.p_initial_righthand,self.R_initial_righthand) = (pd_righthand,Rd_righthand)
+
+        elif(t>3 and t<=4):
+            
+            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-3,1,self.p_initial_lefthand,Rotx(-pi/2),pxyz(0,0,0),exyz(0,0,1),-pi/6)
+            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-3,1,self.p_initial_righthand,Rotx(pi/2),pxyz(0,0,0),exyz(0,0,1),pi/6)
+
+            (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = rotate_back(t-3,1,self.p_initial_uppertorso,self.R_initial_uppertorso,pxyz(0.1,0,0),pi/16)
+
+            (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot) = (self.p_initial_leftfoot,np.zeros((3,1)),self.R_initial_leftfoot,np.zeros((3,1)))
+            (pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = (self.p_initial_rightfoot,np.zeros((3,1)),self.R_initial_rightfoot,np.zeros((3,1)))
+            (pd_head,vd_head,Rd_head,wd_head) = (self.p_initial_head,np.zeros((3,1)),self.R_initial_head,np.zeros((3,1)))
+            
+            if(t>=3.99):
+                (self.p_initial_lefthand,self.R_initial_lefthand) = (pd_lefthand,Rd_lefthand)
+                (self.p_initial_righthand,self.R_initial_righthand) = (pd_righthand,Rd_righthand)
+                (self.p_initial_uppertorso,self.R_initial_uppertorso) = (pd_uppertorso,Rd_uppertorso)
+
+        elif(t>4 and t<=6):
+
+            (pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = injured_right_leg_move(t-4,2,self.p_initial_rightfoot,self.R_initial_rightfoot)
+            
+            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = (self.pd_lefthand,np.zeros((3,1)),self.Rd_lefthand,np.zeros((3,1)))
+            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = (self.pd_righthand,np.zeros((3,1)),self.Rd_righthand,np.zeros((3,1)))
+            (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = (self.pd_uppertorso,np.zeros((3,1)),self.Rd_uppertorso,np.zeros((3,1)))
+            (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot) = (self.p_initial_leftfoot,np.zeros((3,1)),self.R_initial_leftfoot,np.zeros((3,1)))
+            (pd_head,vd_head,Rd_head,wd_head) = (self.p_initial_head,np.zeros((3,1)),self.R_initial_head,np.zeros((3,1)))
+
+            if(t>=5.99):
+                (self.p_initial_rightfoot,self.R_initial_rightfoot) = (pd_rightfoot,Rd_rightfoot)
+        
+        elif(t>6 and t<=8):
+
+            (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot,
+             pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = walk(t-6,2,self.p_initial_rightfoot,self.p_initial_leftfoot,self.Rd_rightfoot,self.R_initial_leftfoot)
+              
+            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(0,0,0),exyz(0,0,1),pi/6)
+            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(0,0,0),exyz(0,0,1),-pi/6)
+            
+            (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = rotate_back(t-6,2,self.p_initial_uppertorso,self.R_initial_uppertorso,pxyz(-0.1,0,0),-pi/16)
+            
+            (pd_head,vd_head,Rd_head,wd_head) = (self.p_initial_head,np.zeros((3,1)),self.R_initial_head,np.zeros((3,1)))
+
         else:
             return(None)
 
@@ -125,6 +171,9 @@ class Trajectory():
 
         qlast = self.q
         (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = decompose_into_indv_chains(qlast)
+
+        #q_sec_right_kny = float(10*((pi)-q_pelvis_rightfoot[3]))
+        #q_sec_right_foot = np.array([0,0,0,q_sec_right_kny,0,0]).reshape(-1,1)
 
         q_leftfoot,qdot_leftfoot = get_qdot_and_q_from_qlast(q_pelvis_leftfoot, self.pelvis_leftfoot_chain,self.pd_leftfoot,self.Rd_leftfoot, vd_leftfoot,wd_leftfoot,dt)
         q_rightfoot,qdot_rightfoot = get_qdot_and_q_from_qlast(q_pelvis_rightfoot, self.pelvis_rightfoot_chain,self.pd_rightfoot,self.Rd_rightfoot, vd_rightfoot,wd_rightfoot,dt)
@@ -156,10 +205,14 @@ class Trajectory():
     def pelvis_movement(self, t, dt):
 
         # Compute position/orientation of the pelvis (w.r.t. world).
-        ppelvis = pxyz(t/4, 0, 1)
-        Rpelvis = Reye()
-        Tpelvis = T_from_Rp(Rpelvis, ppelvis)
-
+        if(t>6):
+            ppelvis = pxyz((t-6)/4, 0, 1)
+            Rpelvis = Reye()
+            Tpelvis = T_from_Rp(Rpelvis, ppelvis)
+        else:
+            ppelvis = pxyz(0, 0, 1)
+            Rpelvis = Reye()
+            Tpelvis = T_from_Rp(Rpelvis, ppelvis)
         return Tpelvis
 
 
