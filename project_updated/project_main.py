@@ -153,12 +153,28 @@ class Trajectory():
             (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot,
              pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = walk(t-6,2,self.p_initial_rightfoot,self.p_initial_leftfoot,self.Rd_rightfoot,self.R_initial_leftfoot)
               
-            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(0,0,0),exyz(0,0,1),pi/6)
-            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(0,0,0),exyz(0,0,1),-pi/6)
+            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(-0.4,0,0),exyz(0,0,1),pi/6)
+            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(-0.4,0,0),exyz(0,0,1),-pi/6)
             
             (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = rotate_back(t-6,2,self.p_initial_uppertorso,self.R_initial_uppertorso,pxyz(-0.1,0,0),-pi/16)
             
             (pd_head,vd_head,Rd_head,wd_head) = (self.p_initial_head,np.zeros((3,1)),self.R_initial_head,np.zeros((3,1)))
+
+        elif(t>8 and t<=10):
+
+            # Does not work right now, will probably have to get hands in position first, then add injured leg movement after
+            (pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = injured_right_leg_move(t-8,2,self.p_initial_rightfoot,self.R_initial_rightfoot)
+            
+            #(pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(0.1,0,0),exyz(0,0,1),pi/6)
+            #(pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(0.1,0,0),exyz(0,0,1),-pi/6)
+            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = (self.pd_lefthand,np.zeros((3,1)),self.Rd_lefthand,np.zeros((3,1)))
+            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = (self.pd_righthand,np.zeros((3,1)),self.Rd_righthand,np.zeros((3,1)))
+
+            (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = (self.pd_uppertorso,np.zeros((3,1)),self.Rd_uppertorso,np.zeros((3,1)))
+            (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot) = (self.p_initial_leftfoot,np.zeros((3,1)),self.R_initial_leftfoot,np.zeros((3,1)))
+            (pd_head,vd_head,Rd_head,wd_head) = (self.p_initial_head,np.zeros((3,1)),self.R_initial_head,np.zeros((3,1)))
+
+
 
         else:
             return(None)

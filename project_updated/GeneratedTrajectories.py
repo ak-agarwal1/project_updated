@@ -48,7 +48,6 @@ def hand_trajectory(t,T,p_initial,R_initital,movement,e,alpha):
 
 
 
-
 def rotate_back(t,T,p_initial_uppertorso,R_initial_uppertorso,movement,y_alpha):
 
     (s0, s0dot) = goto(t, T, 0.0, 1.0)
@@ -91,7 +90,7 @@ def walk(t,T,p_initial_rightfoot,p_initial_leftfoot,R_initial_rightfoot,R_initia
     (s0_first,s0dot_first) = (sin(pi*(t/2)),cos(pi*(t/2)))
 
     movementlf = np.array([0,0,0]).reshape(-1,1)
-    movementrf = np.array([-0.65,0,0]).reshape(-1,1)
+    movementrf = np.array([-0.4,0,0]).reshape(-1,1)
     leftfoot_height = np.array([0,0,0.1]).reshape(-1,1)
 
     
