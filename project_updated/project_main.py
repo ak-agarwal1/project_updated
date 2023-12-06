@@ -151,12 +151,12 @@ class Trajectory():
                 (self.p_initial_rightfoot,self.R_initial_rightfoot) = (pd_rightfoot,Rd_rightfoot)
         
         elif(t>6 and t<=8):
+            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(-0.38,0,0),exyz(0,0,1),pi/6)
+            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(-0.38,0,0),exyz(0,0,1),-pi/6)
 
             (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot,
              pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = walk(t-6,2,self.p_initial_rightfoot,self.p_initial_leftfoot,self.Rd_rightfoot,self.R_initial_leftfoot)
               
-            (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(-0.4,0,0),exyz(0,0,1),pi/6)
-            (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(-0.4,0,0),exyz(0,0,1),-pi/6)
             
             (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = rotate_back(t-6,2,self.p_initial_uppertorso,self.R_initial_uppertorso,pxyz(-0.1,0,0),-pi/16)
             
@@ -179,8 +179,8 @@ class Trajectory():
             
                 #(pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(0.1,0,0),exyz(0,0,1),pi/6)
                 #(pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(0.1,0,0),exyz(0,0,1),-pi/6)
-                (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t_prime,2,self.p_initial_lefthand,Rotx(-pi/2),pxyz(0.4,0,0),exyz(0,0,1),-pi/6)
-                (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t_prime,2,self.p_initial_righthand,Rotx(pi/2),pxyz(0.4,0,0),exyz(0,0,1),pi/6)
+                (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t_prime,2,self.p_initial_lefthand,Rotx(-pi/2),pxyz(0.38,0,0),exyz(0,0,1),-pi/6)
+                (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t_prime,2,self.p_initial_righthand,Rotx(pi/2),pxyz(0.38,0,0),exyz(0,0,1),pi/6)
 
                 (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = rotate_back(t_prime,2,self.p_initial_uppertorso,self.R_initial_uppertorso,pxyz(0.1,0,0),pi/16)
 
@@ -198,8 +198,8 @@ class Trajectory():
                 (pd_leftfoot,vd_leftfoot,Rd_leftfoot,wd_leftfoot,
                  pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = walk(t_prime-2,2,self.p_initial_rightfoot,self.p_initial_leftfoot,self.Rd_rightfoot,self.R_initial_leftfoot)
               
-                (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t_prime-2,2,self.p_initial_lefthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(-0.4,0,0),exyz(0,0,1),pi/6)
-                (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t_prime-2,2,self.p_initial_righthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(-0.4,0,0),exyz(0,0,1),-pi/6)
+                (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t_prime-2,2,self.p_initial_lefthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(-0.38,0,0),exyz(0,0,1),pi/6)
+                (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t_prime-2,2,self.p_initial_righthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(-0.38,0,0),exyz(0,0,1),-pi/6)
             
                 (pd_uppertorso,vd_uppertorso,Rd_uppertorso,wd_uppertorso) = rotate_back(t_prime-2,2,self.p_initial_uppertorso,self.R_initial_uppertorso,pxyz(-0.1,0,0),-pi/16)
             

@@ -37,6 +37,7 @@ def get_hand_to_initial_pos(t,T,p_initial_righthand,p_initial_lefthand,R_initial
 def hand_trajectory(t,T,p_initial,R_initital,movement,e,alpha):
 
     (s0, s0dot) = goto(t, T, 0.0, 1.0)
+    #(s0,s0dot) = (abs(sin(pi*(t/2))),abs(cos(pi*(t/2))))
 
     pd = p_initial + (movement)*s0
     vd = (movement)*s0dot
@@ -69,7 +70,7 @@ def injured_right_leg_move(t,T,p_initiaL_rightfoot,R_initial_rightfoot):
     e = exyz(0,1,0)
 
     rotation = pi/4
-    movement = np.array([0.35,0,0.08]).reshape(-1,1)
+    movement = np.array([0.38,0,0.08]).reshape(-1,1)
 
     pd_rightfoot = p_initiaL_rightfoot +movement*s0
     vd_rightfoot = movement*s0dot
@@ -87,7 +88,7 @@ def right_leg_only_move(t,T,p_initiaL_rightfoot,R_initial_rightfoot):
     e = exyz(0,1,0)
 
     rotation = 0
-    movement = np.array([0.35,0,0.0]).reshape(-1,1)
+    movement = np.array([0.38,0,0.0]).reshape(-1,1)
 
     pd_rightfoot = p_initiaL_rightfoot +movement*s0
     vd_rightfoot = movement*s0dot
@@ -108,7 +109,7 @@ def walk(t,T,p_initial_rightfoot,p_initial_leftfoot,R_initial_rightfoot,R_initia
     (s0_first,s0dot_first) = (sin(pi*(t/2)),cos(pi*(t/2)))
 
     movementlf = np.array([0,0,0]).reshape(-1,1)
-    movementrf = np.array([-0.35,0,0]).reshape(-1,1)
+    movementrf = np.array([-0.38,0,0]).reshape(-1,1)
     leftfoot_height = np.array([0,0,0.1]).reshape(-1,1)
 
     
@@ -119,7 +120,7 @@ def walk(t,T,p_initial_rightfoot,p_initial_leftfoot,R_initial_rightfoot,R_initia
     wd_rightfoot = np.zeros((3,1))
 
     pd_leftfoot = p_initial_leftfoot + ((movementlf)/2 + leftfoot_height)*s0_first
-    vd_leftfoot = ((movementlf)/2 + leftfoot_height)* s0dot_first
+    vd_leftfoot = ((movementlf)/2 + leftfoot_height)* s0dot
 
     Rd_leftfoot = R_initial_leftfoot
     wd_leftfoot = np.zeros((3,1))
