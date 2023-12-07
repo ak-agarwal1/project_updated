@@ -70,7 +70,7 @@ def injured_right_leg_move(t,T,p_initiaL_rightfoot,R_initial_rightfoot):
     e = exyz(0,1,0)
 
     rotation = pi/4
-    movement = np.array([0.38,0,0.08]).reshape(-1,1)
+    movement = np.array([0.38,0,0.12]).reshape(-1,1)
 
     pd_rightfoot = p_initiaL_rightfoot +movement*s0
     vd_rightfoot = movement*s0dot

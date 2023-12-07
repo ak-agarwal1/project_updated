@@ -74,7 +74,8 @@ class Trajectory():
 
         ##############################################################################################
 
-        self.pelvis_pxyz_wrt_world = pxyz(0,0,1)
+        self.pelvis_pxyz_wrt_world = pxyz(-1.5,-1.5,0.93)
+        self.pelvis_Rot_wrt_world = Rotz(pi/2)
         
 
 
@@ -221,8 +222,9 @@ class Trajectory():
 
         qlast = self.q
         (q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand) = decompose_into_indv_chains(qlast)
+        
 
-        #q_sec_right_kny = float(10*((pi)-q_pelvis_rightfoot[3]))
+        #q_sec_right_kny = float(10**15*((-pi/6)-q_pelvis_rightfoot[3]))
         #q_sec_right_foot = np.array([0,0,0,q_sec_right_kny,0,0]).reshape(-1,1)
 
         q_leftfoot,qdot_leftfoot = get_qdot_and_q_from_qlast(q_pelvis_leftfoot, self.pelvis_leftfoot_chain,self.pd_leftfoot,self.Rd_leftfoot, vd_leftfoot,wd_leftfoot,dt)
@@ -257,16 +259,19 @@ class Trajectory():
         # Compute position/orientation of the pelvis (w.r.t. world).
         if(t<6):
             ppelvis = self.pelvis_pxyz_wrt_world
-            Rpelvis = Reye()
+            Rpelvis = self.pelvis_Rot_wrt_world
             Tpelvis = T_from_Rp(Rpelvis, ppelvis)
         else:
             t_prime = (t-6)%4
+            r = 0.005
 
             if(t_prime <= 2):
-                self.pelvis_pxyz_wrt_world = self.pelvis_pxyz_wrt_world + pxyz(0.01*0.5,0,0)
+                self.pelvis_pxyz_wrt_world = self.pelvis_pxyz_wrt_world + pxyz(r*sin((pi/16)*(t-6)),r*cos((pi/16)*(t-6)),0)
+                self.pelvis_Rot_wrt_world  = self.pelvis_Rot_wrt_world  @ Rotz((-pi/8)*dt)
+
             
             ppelvis = self.pelvis_pxyz_wrt_world
-            Rpelvis = Reye()
+            Rpelvis = self.pelvis_Rot_wrt_world
             Tpelvis = T_from_Rp(Rpelvis, ppelvis)
 
         return Tpelvis
