@@ -9,6 +9,7 @@ from project_updated.TrajectoryUtils    import *
 from project_updated.CustomUtils        import *
 
 
+
 def get_hand_to_initial_pos(t,T,p_initial_righthand,p_initial_lefthand,R_initial_righthand,R_initial_lefthand):
 
     (s0, s0dot) = goto(t, T, 0.0, 1.0)
@@ -63,7 +64,6 @@ def rotate_back(t,T,p_initial_uppertorso,R_initial_uppertorso,movement,y_alpha):
 
 
 
-
 def injured_right_leg_move(t,T,p_initiaL_rightfoot,R_initial_rightfoot):
 
     (s0, s0dot) = goto(t, T, 0.0, 1.0)
@@ -97,8 +97,6 @@ def right_leg_only_move(t,T,p_initiaL_rightfoot,R_initial_rightfoot):
     wd_rightfoot = R_initial_rightfoot @ (e * (rotation * s0dot))
 
     return (pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot)
-
-
 
 
 

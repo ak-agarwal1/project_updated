@@ -175,11 +175,8 @@ class Trajectory():
 
             if(t_prime<=2):
 
-                # Does not work right now, will probably have to get hands in position first, then add injured leg movement after
                 (pd_rightfoot,vd_rightfoot,Rd_rightfoot,wd_rightfoot) = right_leg_only_move(t_prime,2,self.p_initial_rightfoot,self.R_initial_rightfoot)
-            
-                #(pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t-6,2,self.p_initial_lefthand,Rotx(pi/2)@ Rotz(pi/6),pxyz(0.1,0,0),exyz(0,0,1),pi/6)
-                #(pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t-6,2,self.p_initial_righthand,Rotx(-pi/2)@ Rotz(-pi/6),pxyz(0.1,0,0),exyz(0,0,1),-pi/6)
+    
                 (pd_lefthand,vd_lefthand,Rd_lefthand,wd_lefthand) = hand_trajectory(t_prime,2,self.p_initial_lefthand,Rotx(-pi/2),pxyz(0.38,0,0),exyz(0,0,1),-pi/6)
                 (pd_righthand,vd_righthand,Rd_righthand,wd_righthand) = hand_trajectory(t_prime,2,self.p_initial_righthand,Rotx(pi/2),pxyz(0.38,0,0),exyz(0,0,1),pi/6)
 
@@ -247,8 +244,7 @@ class Trajectory():
         (self.pd_lefthand,self.Rd_lefthand) = (pd_lefthand,Rd_lefthand)
         (self.pd_righthand,self.Rd_righthand) = (pd_righthand,Rd_righthand)
 
-
-
+        
         return (q.flatten().tolist(), qdot.flatten().tolist())
     
 

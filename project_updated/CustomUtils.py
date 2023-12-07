@@ -15,6 +15,7 @@ def get_qdot_and_q_from_qlast(qlast,Chain,pd,Rd,vd,wd,dt):
     return (q,qdot)
 
 
+
 def get_qdot_and_q_from_qlast_with_secondary(qlast,Chain,pd,Rd,vd,wd,dt,qdot_sec):
 
     (p, R, Jv, Jw) = Chain.fkin(qlast)
@@ -41,6 +42,7 @@ def decompose_into_indv_chains(q):
     q_uppertorso_righthand = q[23:30].reshape(-1,1)
 
     return(q_pelvis_leftfoot,q_pelvis_rightfoot,q_pelvis_uppertorso,q_uppertorso_head,q_uppertorso_lefthand,q_uppertorso_righthand)
+
 
 
 def combine_indv_chain_to_q(left_foot,right_foot,upper_torso, head, left_hand, right_hand):
